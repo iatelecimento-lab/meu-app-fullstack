@@ -1,0 +1,35 @@
+import Groq from 'groq-sdk';
+
+// O Groq SDK deve ser instanciado com a chave da API
+// IMPORTANTE: Em produção, chamadas de IA devem ser feitas no backend (Node.js/Supabase Edge Functions)
+// Aqui estamos fazendo no frontend apenas para fins de demonstração/estúdio rápido.
+// Usamos dangerouslyAllowBrowser: true porque estamos chamando direto do React.
+export const groq = new Groq({
+  apiKey: process.env.REACT_APP_GROQ_API_KEY || 'gsk_sua_chave_falsa_para_nao_quebrar',
+  dangerouslyAllowBrowser: true,
+});
+
+export async function gerarRespostaIA(prompt: string) {
+  try {
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: 'Você é um assistente de IA prestativo integrado ao Estúdio de Desenvolvimento do usuário. Responda em português.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      model: 'llama3-8b-8192',
+      temperature: 0.7,
+      max_tokens: 1024,
+    });
+
+    return chatCompletion.choices[0]?.message?.content || 'Desculpe, não consegui gerar uma resposta.';
+  } catch (error) {
+    console.error('Erro ao chamar Groq:', error);
+    return 'Erro ao conectar com a IA. Verifique se a chave REACT_APP_GROQ_API_KEY está configurada corretamente no .env.';
+  }
+}
