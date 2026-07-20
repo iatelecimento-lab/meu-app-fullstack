@@ -1,1 +1,0 @@
-# meu-app-fullstack
